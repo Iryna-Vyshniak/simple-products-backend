@@ -15,15 +15,16 @@ const productSchema = new Schema(
   { versionKey: false, timestamps: true }
 );
 
-productSchema.post('save');
+// productSchema.post('save');
 
 const productAddSchema = Joi.object({
-  name: Joi.string().required(),
-  price: Joi.number().required(),
+  name: Joi.string().required().messages({ 'any.required': `name must be exists` }),
+  price: Joi.number().required().messages({ 'any.required': `price must be exists` }),
 });
 
 const Product = model('product', productSchema);
 
 module.exports = {
   Product,
+  productAddSchema,
 };
