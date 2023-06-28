@@ -1,6 +1,6 @@
-const Product = require('../models/product');
+const { Product } = require('../models/product');
 const HttpError = require('../helpers/HttpError');
-const ctrl = require('../decorators/ctrlWrapper');
+const ctrlWrapper = require('../decorators/ctrlWrapper');
 
 const getAllProducts = async (req, res) => {};
 
@@ -11,6 +11,6 @@ const createProduct = async (req, res) => {
 };
 
 module.exports = {
-  getAllProducts: ctrl(getAllProducts),
-  createProduct: ctrl(createProduct),
+  getAllProducts: ctrlWrapper(getAllProducts),
+  createProduct: ctrlWrapper(createProduct),
 };
