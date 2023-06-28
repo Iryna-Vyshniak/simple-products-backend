@@ -1,5 +1,6 @@
 const { Schema, model } = require('mongoose');
 const Joi = require('joi');
+const handleMongooseError = require('../helpers/handleMongooseError');
 
 const productSchema = new Schema(
   {
@@ -23,11 +24,16 @@ const productSchema = new Schema(
       type: Number,
       required: true,
     },
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: 'user',
+      required: true,
+    },
   },
   { versionKey: false, timestamps: true }
 );
 
-// productSchema.post('save');
+productSchema.post('save', handleMongooseError);
 
 const productAddSchema = Joi.object({
   name: Joi.string().required().messages({ 'any.required': `name must be exists` }),
