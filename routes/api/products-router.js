@@ -6,7 +6,7 @@ const { productAddSchema } = require('../../models/product');
 
 const router = express.Router();
 
-router.get('/');
+router.get('/', ctrl.getAllProducts);
 router.post('/', validateBody(productAddSchema), ctrl.createProduct);
 
 module.exports = router;
