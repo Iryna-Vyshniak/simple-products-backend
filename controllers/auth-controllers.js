@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const { User } = require('../models/user');
 const HttpError = require('../helpers/HttpError');
@@ -23,8 +24,36 @@ const signUp = async (req, res, next) => {
   });
 };
 
-const signIn = async (req, res, next) => {};
-const logout = async (req, res, next) => {};
+const signIn = async (req, res, next) => {
+  const { email, password } = req.body;
+
+  const candidate = await User.findOne({ email });
+
+  if (!candidate || !bcrypt.compare(password, candidate.password)) {
+    throw HttpError(401, 'Wrong credentials');
+  }
+
+  const payload = {
+    id: candidate._id,
+    email: candidate.email,
+  };
+
+  const token = jwt.sign(payload, SECRET_KEY, { expiresIn: '23h' });
+
+  await User.findByIdAndUpdate(candidate._id, { token });
+  //   await User.findOneAndUpdate(email, { token });
+
+  res.json({ token });
+};
+
+const logout = async (req, res, next) => {
+  const { _id } = req.user;
+  console.log(_id);
+  //   await User.findByIdAndUpdate({ _id: user.id }, { token: '' });
+  await User.findByIdAndUpdate(_id, { token: '' });
+
+  res.status(204).json({ message: 'Logout success' });
+};
 
 module.exports = {
   signUp: ctrlWrapper(signUp),
