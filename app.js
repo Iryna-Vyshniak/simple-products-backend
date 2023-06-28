@@ -6,6 +6,7 @@ require('dotenv').config();
 const app = express(); // web server
 
 const productsRouter = require('./routes/api/products-router');
+const authRouter = require('./routes/api/auth-router');
 
 const formatLogger = app.get('env') === 'development' ? 'dev' : 'short';
 
@@ -13,6 +14,7 @@ app.use(logger(formatLogger));
 app.use(cors());
 app.use(express.json());
 
+app.use('/api/auth', authRouter);
 app.use('/api/products', productsRouter);
 
 app.use((req, res) => {
