@@ -2,7 +2,10 @@ const { Product } = require('../models/product');
 const HttpError = require('../helpers/HttpError');
 const ctrlWrapper = require('../decorators/ctrlWrapper');
 
-const getAllProducts = async (req, res) => {};
+const getAllProducts = async (req, res) => {
+  const products = await Product.find({}, '-createdAt, -updatedAt');
+  res.json(products);
+};
 
 const createProduct = async (req, res) => {
   const { body } = req;
