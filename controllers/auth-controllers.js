@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const gravatar = require('gravatar');
 const path = require('path');
 const fs = require('fs/promises');
+const Jimp = require('jimp');
 
 const { User } = require('../models/user');
 const HttpError = require('../helpers/HttpError');
@@ -63,20 +64,37 @@ const logout = async (req, res, next) => {
 };
 
 const updateAvatar = async (req, res, next) => {
+  if (!req.file) {
+    throw HttpError(400, 'Avatar must be provided');
+  }
+
   const { _id } = req.user;
+  console.log('ID: ', _id);
+  // console.log(req.user);
   const { path: tempUpload, originalname } = req.file;
 
-  const filename = `${_id}_${originalname}`;
+  await Jimp.read(tempUpload)
+    .then((avatar) => {
+      return avatar
+        .resize(250, 250) // resize
+        .quality(60) // set JPEG quality
+        .write(tempUpload); // save
+    })
+    .catch((err) => {
+      throw err;
+    });
 
-  const publicUpload = path.join(avatarDir, filename);
+  const fileName = `${_id}_${originalname}`;
+
+  const publicUpload = path.join(avatarDir, fileName);
 
   await fs.rename(tempUpload, publicUpload);
 
-  const avatarURL = path.join('avatars', filename);
+  const avatarUrl = path.join('avatars', fileName);
 
-  await User.findByIdAndUpdate(_id, { avatarURL });
+  await User.findByIdAndUpdate(_id, { avatarUrl });
 
-  res.json({ avatarURL });
+  res.json({ avatarUrl });
 };
 
 module.exports = {
