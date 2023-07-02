@@ -13,6 +13,8 @@ const formatLogger = app.get('env') === 'development' ? 'dev' : 'short';
 app.use(logger(formatLogger));
 app.use(cors());
 app.use(express.json());
+// add static
+app.use(express.static('public'));
 
 app.use('/api/auth', authRouter);
 app.use('/api/products', productsRouter);
