@@ -7,6 +7,8 @@ const { checkAuth, upload } = require('../../middlewares');
 const router = Router();
 
 router.post('/signup', validateBody(schemas.registerSchema), ctrl.signUp);
+router.get('/verify/:verificationToken', ctrl.verify);
+router.post('/verify', validateBody(schemas.userEmailSchema), ctrl.resendVerify);
 router.post('/signin', validateBody(schemas.loginSchema), ctrl.signIn);
 router.get('/current', checkAuth, ctrl.getCurrent);
 router.post('/logout', checkAuth, ctrl.logout);
