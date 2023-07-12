@@ -56,7 +56,7 @@ const signIn = async (req, res, next) => {
 
 const logout = async (req, res, next) => {
   const { _id } = req.user;
-  console.log(_id);
+  // console.log(_id);
   //   await User.findByIdAndUpdate({ _id: user.id }, { token: '' });
   await User.findByIdAndUpdate(_id, { token: '' });
 
@@ -97,9 +97,16 @@ const updateAvatar = async (req, res, next) => {
   res.json({ avatarUrl });
 };
 
+const getCurrent = async (req, res) => {
+  console.log(req.user);
+  const { name, email, token } = req.user;
+  res.json({ name, email, token });
+};
+
 module.exports = {
   signUp: ctrlWrapper(signUp),
   signIn: ctrlWrapper(signIn),
   logout: ctrlWrapper(logout),
   updateAvatar: ctrlWrapper(updateAvatar),
+  getCurrent: ctrlWrapper(getCurrent),
 };
