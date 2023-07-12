@@ -2,7 +2,6 @@ const express = require('express');
 const ctrl = require('../../controllers/products-controllers');
 const validateBody = require('../../decorators/validateBody');
 const { productAddSchema } = require('../../models/product');
-// console.log(productAddSchema);
 const { checkAuth, isValidId } = require('../../middlewares');
 
 const router = express.Router();
