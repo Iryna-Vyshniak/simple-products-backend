@@ -49,14 +49,67 @@ const signUp = async (req, res, next) => {
   });
 };
 
+// verify email
+
+const verify = async (req, res) => {
+  const { verificationToken } = req.params;
+
+  const user = await User.findOne({ verificationToken });
+
+  if (!user) {
+    throw HttpError(404, 'User not found');
+  }
+
+  await User.findByIdAndUpdate(user._id, { verify: true, verificationToken: '' });
+
+  res.json({
+    message: 'Verification successful',
+  });
+};
+
+// resend verify email
+
+const resendVerify = async (req, res) => {
+  const { email } = req.body;
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw HttpError(404, 'User not found');
+  }
+  if (user.verify) {
+    throw HttpError(400, 'Verification has already been passed');
+  }
+
+  const verifyEmail = {
+    to: email,
+    subject: 'Сonfirm your registration',
+    html: `<a target="_blank" href="${BASE_URL}/api/auth/verify/${user.verificationToken}">Click to confirm your registration</a>`,
+  };
+
+  await sendEmail(verifyEmail);
+
+  res.json({
+    message: 'Verification email sent',
+  });
+};
+
 // login
 const signIn = async (req, res, next) => {
   const { email, password } = req.body;
+
+  if (!email || !password) {
+    throw HttpError(400, 'Email or password is missing');
+  }
 
   const candidate = await User.findOne({ email });
 
   if (!candidate || !bcrypt.compare(password, candidate.password)) {
     throw HttpError(401, 'Wrong credentials');
+  }
+
+  if (!candidate.verify) {
+    throw HttpError(404, 'User not found');
   }
 
   const payload = {
@@ -69,9 +122,16 @@ const signIn = async (req, res, next) => {
   await User.findByIdAndUpdate(candidate._id, { token });
   //   await User.findOneAndUpdate(email, { token });
 
-  res.json({ token });
+  res.json({
+    token,
+    user: {
+      name: candidate.name,
+      email: candidate.email,
+    },
+  });
 };
 
+// logout user
 const logout = async (req, res, next) => {
   const { _id } = req.user;
   // console.log(_id);
@@ -121,11 +181,19 @@ const updateAvatar = async (req, res, next) => {
 const getCurrent = async (req, res) => {
   console.log(req.user);
   const { name, email, token } = req.user;
-  res.json({ name, email, token });
+  res.json({
+    token,
+    user: {
+      name,
+      email,
+    },
+  });
 };
 
 module.exports = {
   signUp: ctrlWrapper(signUp),
+  verify: ctrlWrapper(verify),
+  resendVerify: ctrlWrapper(resendVerify),
   signIn: ctrlWrapper(signIn),
   logout: ctrlWrapper(logout),
   updateAvatar: ctrlWrapper(updateAvatar),
