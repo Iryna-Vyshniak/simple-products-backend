@@ -50,6 +50,13 @@ const registerSchema = Joi.object({
   password: Joi.string().min(6).required(),
 });
 
+const userEmailSchema = Joi.object({
+  email: Joi.string()
+    .pattern(emailRegexp)
+    .required()
+    .messages({ 'any.required': 'Missing required field email' }),
+});
+
 const loginSchema = Joi.object({
   email: Joi.string().pattern(emailRegexp).required(),
   password: Joi.string().min(6).required(),
@@ -57,6 +64,7 @@ const loginSchema = Joi.object({
 
 const schemas = {
   registerSchema,
+  userEmailSchema,
   loginSchema,
 };
 
