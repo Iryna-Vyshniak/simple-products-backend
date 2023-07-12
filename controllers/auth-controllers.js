@@ -11,7 +11,7 @@ const HttpError = require('../helpers/HttpError');
 const sendEmail = require('../helpers/sendEmail');
 const ctrlWrapper = require('../decorators/ctrlWrapper');
 
-const { SECRET_KEY, BASE_URL } = process.env;
+const { SECRET_KEY, BASE_URL, FRONTEND_URL } = process.env;
 
 const avatarDir = path.join(__dirname, '../', 'public', 'avatars');
 
@@ -39,7 +39,7 @@ const signUp = async (req, res, next) => {
   const verifyEmail = {
     to: email,
     subject: 'Сonfirm your registration',
-    html: `<a target="_blank" href="${BASE_URL}/api/auth/verify/${verificationToken}">Click to confirm your registration</a>`,
+    html: `<a target="_blank" href="${FRONTEND_URL}/signin?verificationToken=${verificationToken}">Click to confirm your registration</a>`,
   };
 
   await sendEmail(verifyEmail);
