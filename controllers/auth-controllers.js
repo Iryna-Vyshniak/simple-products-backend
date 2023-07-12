@@ -4,14 +4,18 @@ const gravatar = require('gravatar');
 const path = require('path');
 const fs = require('fs/promises');
 const Jimp = require('jimp');
+const { randomUUID } = require('crypto');
 
 const { User } = require('../models/user');
 const HttpError = require('../helpers/HttpError');
+const sendEmail = require('../helpers/sendEmail');
 const ctrlWrapper = require('../decorators/ctrlWrapper');
-const { SECRET_KEY } = process.env;
+
+const { SECRET_KEY, BASE_URL } = process.env;
 
 const avatarDir = path.join(__dirname, '../', 'public', 'avatars');
 
+// register
 const signUp = async (req, res, next) => {
   const { email, password } = req.body;
 
@@ -23,15 +27,29 @@ const signUp = async (req, res, next) => {
 
   const hashPassword = await bcrypt.hashSync(password, 10);
   const avatarUrl = gravatar.url(email);
-  // console.log(avatarUrl);
+  const verificationToken = randomUUID();
 
-  const result = await User.create({ ...req.body, password: hashPassword, avatarUrl });
+  const result = await User.create({
+    ...req.body,
+    password: hashPassword,
+    avatarUrl,
+    verificationToken,
+  });
+
+  const verifyEmail = {
+    to: email,
+    subject: 'Сonfirm your registration',
+    html: `<a target="_blank" href="${BASE_URL}/api/auth/verify/${verificationToken}">Click to confirm your registration</a>`,
+  };
+
+  await sendEmail(verifyEmail);
 
   res.status(201).json({
     result,
   });
 };
 
+// login
 const signIn = async (req, res, next) => {
   const { email, password } = req.body;
 
@@ -62,6 +80,8 @@ const logout = async (req, res, next) => {
 
   res.status(204).json({ message: 'Logout success' });
 };
+
+// update avatar
 
 const updateAvatar = async (req, res, next) => {
   if (!req.file) {
@@ -97,6 +117,7 @@ const updateAvatar = async (req, res, next) => {
   res.json({ avatarUrl });
 };
 
+// get current user
 const getCurrent = async (req, res) => {
   console.log(req.user);
   const { name, email, token } = req.user;
