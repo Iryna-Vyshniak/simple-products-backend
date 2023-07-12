@@ -1,16 +1,19 @@
 const { Product } = require('../models/product');
-// const HttpError = require('../helpers/HttpError');
 const ctrlWrapper = require('../decorators/ctrlWrapper');
 const HttpError = require('../helpers/HttpError');
 
 const getAllProducts = async (req, res) => {
   const { _id: owner } = req.user;
-  const { page = 1, limit = 10 } = req.query;
+  const { page = 1, limit = 10, favorite } = req.query;
   const skip = (page - 1) * limit;
-  const products = await Product.find({ owner }, '-createdAt, -updatedAt', {
-    skip,
-    limit: Number(limit),
-  }).populate('owner', 'name email');
+  const products = await Product.find(
+    favorite ? { owner, favorite } : { owner },
+    '-createdAt, -updatedAt',
+    {
+      skip,
+      limit: Number(limit),
+    }
+  ).populate('owner', 'name email');
   res.json(products);
 };
 
@@ -31,8 +34,20 @@ const getProductById = async (req, res) => {
   res.json(result);
 };
 
+const updateStatusProduct = async (req, res) => {
+  const { id } = req.params;
+  const { body } = req;
+  const { _id: owner } = req.user;
+  const result = await Product.findOneAndUpdate({ _id: id, owner }, body, { new: true });
+  if (!result) {
+    throw HttpError(404, `Not found`);
+  }
+  res.json(result);
+};
+
 module.exports = {
   getAllProducts: ctrlWrapper(getAllProducts),
   createProduct: ctrlWrapper(createProduct),
   getProductById: ctrlWrapper(getProductById),
+  updateStatusProduct: ctrlWrapper(updateStatusProduct),
 };
