@@ -26,6 +26,7 @@ const checkAuth = async (req, res, next) => {
       throw HttpError(401, 'Not authorized');
     }
     req.user = user;
+    console.log('User', req.user);
     next();
   } catch (error) {
     next(HttpError(401, 'Not authorized'));
