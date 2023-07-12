@@ -24,6 +24,10 @@ const productSchema = new Schema(
       type: Number,
       required: true,
     },
+    favorite: {
+      type: Boolean,
+      default: false,
+    },
     owner: {
       type: Schema.Types.ObjectId,
       ref: 'user',
@@ -41,11 +45,18 @@ const productAddSchema = Joi.object({
   type: Joi.string().required().messages({ 'any.required': `type must be exists` }),
   description: Joi.string().required().messages({ 'any.required': `description must be exists` }),
   url: Joi.string().required().messages({ 'any.required': `url must be exists` }),
+  favorite: Joi.boolean().required(),
 });
+
+const updateFavoriteSchema = Joi.object({
+  favorite: Joi.boolean().required().messages({ 'any.required': 'Missing field favorite' }),
+});
+
+const schemas = { productAddSchema, updateFavoriteSchema };
 
 const Product = model('product', productSchema);
 
 module.exports = {
   Product,
-  productAddSchema,
+  schemas,
 };
