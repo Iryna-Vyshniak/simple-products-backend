@@ -127,6 +127,7 @@ const signIn = async (req, res, next) => {
     user: {
       name: candidate.name,
       email: candidate.email,
+      avatarUrl: candidate.avatarUrl,
     },
   });
 };
