@@ -16,7 +16,7 @@ const productSchema = new Schema(
       type: String,
       required: true,
     },
-    url: {
+    poster: {
       type: String,
       required: true,
     },
@@ -44,7 +44,7 @@ const productAddSchema = Joi.object({
   price: Joi.number().required().messages({ 'any.required': `price must be exists` }),
   type: Joi.string().required().messages({ 'any.required': `type must be exists` }),
   description: Joi.string().required().messages({ 'any.required': `description must be exists` }),
-  url: Joi.string().required().messages({ 'any.required': `url must be exists` }),
+  poster: Joi.string().required().messages({ 'any.required': `url must be exists` }),
   favorite: Joi.boolean().required(),
 });
 
