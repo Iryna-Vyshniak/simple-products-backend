@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.get('/', checkAuth, ctrl.getAllProducts);
 router.get('/:id', isValidId, checkAuth, ctrl.createProduct);
-router.post('/', checkAuth, validateBody(schemas.productAddSchema), ctrl.createProduct);
+router.post('/create-products', checkAuth, validateBody(schemas.productAddSchema), ctrl.createProduct);
 router.patch(
   '/:id/favorite',
   checkAuth,
