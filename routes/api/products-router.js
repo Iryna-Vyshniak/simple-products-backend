@@ -2,16 +2,25 @@ const express = require('express');
 const ctrl = require('../../controllers/products-controllers');
 const validateBody = require('../../decorators/validateBody');
 const { schemas } = require('../../models/product');
-const { checkAuth, isValidId } = require('../../middlewares');
+const { checkAuth, isValidId, upload } = require('../../middlewares');
 
 const router = express.Router();
 
-router.get('/', checkAuth, ctrl.getAllProducts);
-router.get('/:id', isValidId, checkAuth, ctrl.createProduct);
-router.post('/create-products', checkAuth, validateBody(schemas.productAddSchema), ctrl.createProduct);
+router.use(checkAuth);
+
+router.get('/products', ctrl.getAllProducts);
+router.get('/products/:id', isValidId, ctrl.createProduct);
+
+// upload.fields({name: 'poster', maxCount: 1}, {name: 'cards', maxCount: 2})
+// upload.array('poster', 8)
+router.post(
+  '/create-products',
+  upload.single('poster'),
+  validateBody(schemas.productAddSchema),
+  ctrl.createProduct
+);
 router.patch(
-  '/:id/favorite',
-  checkAuth,
+  '/products/:id/favorite',
   isValidId,
   validateBody(schemas.updateFavoriteSchema),
   ctrl.updateStatusProduct
