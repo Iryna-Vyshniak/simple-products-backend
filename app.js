@@ -11,7 +11,7 @@ const authRouter = require('./routes/api/auth-router');
 const formatLogger = app.get('env') === 'development' ? 'dev' : 'short';
 
 app.use(logger(formatLogger));
-app.use(cors());
+app.use(cors({ origin: '*' }));
 app.use(express.json());
 // add static
 app.use(express.static('public'));
