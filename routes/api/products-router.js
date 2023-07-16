@@ -8,8 +8,8 @@ const router = express.Router();
 
 router.use(checkAuth);
 
-router.get('/products', ctrl.getAllProducts);
-router.get('/products/:id', isValidId, ctrl.createProduct);
+router.get('/', ctrl.getAllProducts);
+router.get('/:id', isValidId, ctrl.createProduct);
 
 // upload.fields({name: 'poster', maxCount: 1}, {name: 'cards', maxCount: 2})
 // upload.array('poster', 8)
@@ -20,7 +20,7 @@ router.post(
   ctrl.createProduct
 );
 router.patch(
-  '/products/:id/favorite',
+  '/:id/favorite',
   isValidId,
   validateBody(schemas.updateFavoriteSchema),
   ctrl.updateStatusProduct
