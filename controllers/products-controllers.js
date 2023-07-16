@@ -1,6 +1,10 @@
 const { Product } = require('../models/product');
 const ctrlWrapper = require('../decorators/ctrlWrapper');
 const HttpError = require('../helpers/HttpError');
+const fs = require('fs/promises');
+const path = require('path');
+
+const productPublicDir = path.resolve('public', 'products');
 
 const getAllProducts = async (req, res) => {
   const { _id: owner } = req.user;
@@ -18,9 +22,17 @@ const getAllProducts = async (req, res) => {
 };
 
 const createProduct = async (req, res) => {
-  const { body } = req;
+  const { body, file } = req;
+  // console.log('body', body);
+  // console.log('file', file);
+  const { path: oldPath, filename } = file;
+  const newPath = path.join(productPublicDir, filename);
+  // console.log('newPath', newPath);
+  // console.log('oldPath', oldPath);
+  fs.rename(oldPath, newPath);
+  const poster = path.join('products', filename);
   const { _id: owner } = req.user;
-  const product = await Product.create({ ...body, owner });
+  const product = await Product.create({ ...body, owner, poster });
   res.status(201).json(product);
 };
 
