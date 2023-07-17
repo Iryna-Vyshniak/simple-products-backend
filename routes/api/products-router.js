@@ -1,4 +1,5 @@
 const express = require('express');
+
 const ctrl = require('../../controllers/products-controllers');
 const validateBody = require('../../decorators/validateBody');
 const { schemas } = require('../../models/product');
@@ -14,7 +15,7 @@ router.get('/:id', isValidId, ctrl.createProduct);
 // upload.fields({name: 'poster', maxCount: 1}, {name: 'cards', maxCount: 2})
 // upload.array('poster', 8)
 router.post(
-  '/create-products',
+  '/',
   upload.single('poster'),
   validateBody(schemas.productAddSchema),
   ctrl.createProduct

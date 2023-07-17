@@ -3,18 +3,19 @@ const ctrlWrapper = require('../decorators/ctrlWrapper');
 const HttpError = require('../helpers/HttpError');
 const fs = require('fs/promises');
 const path = require('path');
-const cors = require('cors');
 
 const productPublicDir = path.resolve('public', 'products');
 
 const getAllProducts = async (req, res) => {
-  cors();
+  console.log(req.user);
   const { _id: owner } = req.user;
   const { page = 1, limit = 10, favorite } = req.query;
   const skip = (page - 1) * limit;
   const products = await Product.find(
+    // {},
     favorite ? { owner, favorite } : { owner },
     '-createdAt, -updatedAt',
+    //  );
     {
       skip,
       limit: Number(limit),
@@ -24,7 +25,6 @@ const getAllProducts = async (req, res) => {
 };
 
 const createProduct = async (req, res) => {
-  cors();
   const { body, file } = req;
   // console.log('body', body);
   // console.log('file', file);
@@ -36,6 +36,7 @@ const createProduct = async (req, res) => {
   const poster = path.join('products', filename);
   const { _id: owner } = req.user;
   const product = await Product.create({ ...body, owner, poster });
+  // const product = await Product.create({ ...body, poster });
   res.status(201).json(product);
 };
 
