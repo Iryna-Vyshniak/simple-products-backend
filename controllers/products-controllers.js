@@ -20,12 +20,16 @@ const getAllProducts = async (req, res) => {
       skip,
       limit: Number(limit),
     }
-  ).populate('owner', 'name email');
+  ).populate('owner'); // отримуємо усі дані власника
+  // .populate('owner', 'name email');
+  const total = await Product.where({ owner, ...req.query }).countDocuments();
+  console.log(total);
   res.json(products);
 };
 
 const createProduct = async (req, res) => {
   const { body, file } = req;
+  const { _id: owner } = req.user;
   // console.log('body', body);
   // console.log('file', file);
   const { path: oldPath, filename } = file;
@@ -34,7 +38,7 @@ const createProduct = async (req, res) => {
   // console.log('oldPath', oldPath);
   fs.rename(oldPath, newPath);
   const poster = path.join('products', filename);
-  const { _id: owner } = req.user;
+
   const product = await Product.create({ ...body, owner, poster });
   // const product = await Product.create({ ...body, poster });
   res.status(201).json(product);
