@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-// const HttpError = require('../helpers/HttpError');
+const HttpError = require('../helpers/HttpError');
 
 const { User } = require('../models/user');
 
@@ -10,10 +10,14 @@ const { SECRET_KEY } = process.env;
 //   const { authorization = '' } = req.headers;
 //   console.log(authorization); // Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0OTlmZGY0M2JlZDdjODE2Y2U1YTFmNSIsImlhdCI6MTY4Nzg2ODY5MCwiZXhwIjoxNjg4MDQxNDkwfQ.-qY9ioaCOXTI6T_eW-iLM_YPWxzw3i1Z6tFTb9SIxb0
 
+//   if (typeof authorization !== 'string') {
+//     throw HttpError(401, 'No token provided');
+//   }
+
 //   //   const [bearer, token] = req.headers.authorization?.split(' ');
-//   const [bearer, token] = authorization.split(' ');
-//   if (bearer !== 'Bearer') {
-//     throw HttpError(401, 'Not authorized');
+//   const [bearer, token] = authorization.split(' ', 2);
+//   if (!token || bearer !== 'Bearer') {
+//     throw HttpError(401, '"User is not authorized"');
 //   }
 
 //   try {
@@ -29,46 +33,50 @@ const { SECRET_KEY } = process.env;
 //     console.log('User', req.user);
 //     next();
 //   } catch (error) {
+//     if (error.name === 'TokenExpiredError' || error.name === 'JsonWebTokenError') {
+//       throw HttpError(401, 'Token Error');
+//     }
 //     next(HttpError(401, 'Not authorized'));
 //   }
 // };
 
-function checkAuth(req, res, next) {
+const checkAuth = (req, res, next) => {
   const authHeader = req.headers.authorization;
+  console.log(req.headers);
 
   if (typeof authHeader !== 'string') {
-    return res.status(401).json({ error: 'No token provided' });
+    throw HttpError(401, 'No token provided');
   }
 
   const [bearer, token] = authHeader.split(' ', 2);
 
-  if (bearer !== 'Bearer') {
-    return res.status(401).json({ error: 'No token provided' });
+  if (!token || bearer !== 'Bearer') {
+    throw HttpError(401, 'User is not authorized');
   }
 
   jwt.verify(token, SECRET_KEY, async (err, decode) => {
     if (err) {
       if (err.name === 'TokenExpiredError' || err.name === 'JsonWebTokenError') {
-        return res.status(401).json({ error: 'Token Error' });
+        throw HttpError(401, 'Token Error');
       }
-
       return next(err);
     }
 
     try {
       const user = await User.findOne({ token: token });
-
-      if (user === null) {
-        return res.status(401).json({ error: 'Token Error' });
+      // if (user === null) {
+      //   throw HttpError(401, 'Token Error');
+      // }
+      if (!user || !user.token || user.token !== token) {
+        throw HttpError(401, 'Not authorized');
       }
 
       req.user = user;
-
       next();
     } catch (error) {
-      return next(error);
+      next(HttpError(401));
     }
   });
-}
+};
 
 module.exports = checkAuth;
