@@ -84,7 +84,7 @@ const resendVerify = async (req, res) => {
   const verifyEmail = {
     to: email,
     subject: 'Сonfirm your registration',
-    html: `<a target="_blank" href="${BASE_URL}/api/auth/verify/${user.verificationToken}">Click to confirm your registration</a>`,
+    html: `<a target="_blank" href="${FRONTEND_URL}/api/auth/verify/${user.verificationToken}">Click to confirm your registration</a>`,
   };
 
   await sendEmail(verifyEmail);
