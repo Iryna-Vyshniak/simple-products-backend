@@ -181,13 +181,13 @@ const updateAvatar = async (req, res, next) => {
 // get current user
 const getCurrent = async (req, res) => {
   console.log(req.user);
-  const { name, email, token, avatarURL } = req.user;
+  const { name, email, token, avatarUrl } = req.user;
   res.json({
     token,
     user: {
       name,
       email,
-      avatarURL,
+      avatarUrl,
     },
   });
 };
