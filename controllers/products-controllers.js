@@ -36,7 +36,7 @@ const createProduct = async (req, res) => {
   const newPath = path.join(productPublicDir, filename);
   // console.log('newPath', newPath);
   // console.log('oldPath', oldPath);
-  fs.rename(oldPath, newPath);
+  await fs.rename(oldPath, newPath);
   const poster = path.join('products', filename);
 
   const product = await Product.create({ ...body, owner, poster });
