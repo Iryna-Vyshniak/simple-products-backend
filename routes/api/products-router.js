@@ -15,7 +15,7 @@ router.get('/:id', isValidId, ctrl.getProductById);
 // upload.fields({name: 'poster', maxCount: 1}, {name: 'cards', maxCount: 2})
 // upload.array('poster', 8)
 router.post(
-  '/',
+  '/add-product',
   upload.single('poster'),
   validateBody(schemas.productAddSchema),
   ctrl.createProduct
