@@ -144,14 +144,15 @@ const logout = async (req, res, next) => {
 
 // update avatar
 
-const updateAvatar = async (req, res, next) => {
+const updateUser = async (req, res, next) => {
   if (!req.file) {
     throw HttpError(400, 'Avatar must be provided');
   }
 
   const { _id } = req.user;
+
   console.log('ID: ', _id);
-  // console.log(req.user);
+  console.log(req.user);
   const { path: tempUpload, originalname } = req.file;
 
   await Jimp.read(tempUpload)
@@ -172,10 +173,19 @@ const updateAvatar = async (req, res, next) => {
   await fs.rename(tempUpload, publicUpload);
 
   const avatarUrl = path.join('avatars', fileName);
+  const name = req.body.name;
 
-  await User.findByIdAndUpdate(_id, { avatarUrl });
+  const user = await User.findByIdAndUpdate(_id, { avatarUrl, name }, { new: true });
 
-  res.json({ avatarUrl });
+  res.json({
+    token: user.token,
+    user: {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      avatarUrl: user.avatarUrl,
+    },
+  });
 };
 
 // get current user
@@ -198,6 +208,6 @@ module.exports = {
   resendVerify: ctrlWrapper(resendVerify),
   signIn: ctrlWrapper(signIn),
   logout: ctrlWrapper(logout),
-  updateAvatar: ctrlWrapper(updateAvatar),
+  updateUser: ctrlWrapper(updateUser),
   getCurrent: ctrlWrapper(getCurrent),
 };
