@@ -3,28 +3,30 @@ const ctrlWrapper = require('../decorators/ctrlWrapper');
 const HttpError = require('../helpers/HttpError');
 const fs = require('fs/promises');
 const path = require('path');
+const pagination = require('../utils/pagination');
 
 const productPublicDir = path.resolve('public', 'products');
 
 const getAllProducts = async (req, res) => {
   console.log(req.user);
   const { _id: owner } = req.user;
-  const { page = 1, limit = 10, favorite } = req.query;
-  const skip = (page - 1) * limit;
+  // const { page = 1, limit = 10, favorite } = req.query;
+  const { page: currentPage, limit: currentLimit, favorite } = req.query;
+  const { page, limit, skip } = pagination(currentPage, currentLimit);
+
   const products = await Product.find(
-    // {},
     favorite ? { owner, favorite } : { owner },
     '-createdAt, -updatedAt',
-    //  );
-    {
-      skip,
-      limit: Number(limit),
-    }
-  ).populate('owner'); // отримуємо усі дані власника
+    { limit, skip }
+  )
+    // .limit()
+    // .skip()
+    .populate('owner'); // отримуємо усі дані власника
   // .populate('owner', 'name email');
-  const total = await Product.where({ owner, ...req.query }).countDocuments();
-  console.log(total);
-  res.json(products);
+  const count = await Product.countDocuments();
+  // const count = await Product.where({ owner, ...req.query }).countDocuments();
+  // console.log('COUNT', count);
+  res.json({ products, totalPages: Math.ceil(count / limit), currentPage: page });
 };
 
 const createProduct = async (req, res) => {
