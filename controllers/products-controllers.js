@@ -1,11 +1,12 @@
 const { Product } = require('../models/product');
 const ctrlWrapper = require('../decorators/ctrlWrapper');
 const HttpError = require('../helpers/HttpError');
+const cloudinary = require('../helpers/cloudinary');
 const fs = require('fs/promises');
-const path = require('path');
+// const path = require('path');
 const pagination = require('../utils/pagination');
 
-const productPublicDir = path.resolve('public', 'products');
+// const productPublicDir = path.resolve('public', 'products');
 
 const getAllProducts = async (req, res) => {
   console.log(req.user);
@@ -34,15 +35,28 @@ const createProduct = async (req, res) => {
   const { _id: owner } = req.user;
   // console.log('body', body);
   // console.log('file', file);
+
+  const { path: oldPath } = file;
+
+  /*
+  save local 
   const { path: oldPath, filename } = file;
   const newPath = path.join(productPublicDir, filename);
-  // console.log('newPath', newPath);
-  // console.log('oldPath', oldPath);
+  console.log('newPath', newPath);
+  console.log('oldPath', oldPath);
   await fs.rename(oldPath, newPath);
   const poster = path.join('products', filename);
-
   const product = await Product.create({ ...body, owner, poster });
-  // const product = await Product.create({ ...body, poster });
+  res.status(201).json(product);
+  */
+
+  const fileData = await cloudinary.uploader.upload(oldPath, {
+    folder: 'posters',
+  });
+  console.log(fileData);
+  // збережений в папку temp файл - видаляємо
+  await fs.unlink(oldPath);
+  const product = await Product.create({ ...body, owner, poster: fileData.url });
   res.status(201).json(product);
 };
 
