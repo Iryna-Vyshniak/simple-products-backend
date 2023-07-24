@@ -1,19 +1,20 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const gravatar = require('gravatar');
-const path = require('path');
+// const path = require('path');
 const fs = require('fs/promises');
-const Jimp = require('jimp');
+// const Jimp = require('jimp');
 const { randomUUID } = require('crypto');
 
 const { User } = require('../models/user');
 const HttpError = require('../helpers/HttpError');
 const sendEmail = require('../helpers/sendEmail');
 const ctrlWrapper = require('../decorators/ctrlWrapper');
+const cloudinary = require('../helpers/cloudinary');
 
-const { SECRET_KEY, BASE_URL, FRONTEND_URL } = process.env;
+const { SECRET_KEY, FRONTEND_URL } = process.env;
 
-const avatarDir = path.join(__dirname, '../', 'public', 'avatars');
+// const avatarDir = path.join(__dirname, '../', 'public', 'avatars');
 
 // register
 const signUp = async (req, res, next) => {
@@ -150,32 +151,46 @@ const updateUser = async (req, res, next) => {
   }
 
   const { _id } = req.user;
+  // console.log('ID: ', _id);
+  // console.log(req.user);
 
-  console.log('ID: ', _id);
-  console.log(req.user);
-  const { path: tempUpload, originalname } = req.file;
+  const { path: tempUpload } = req.file;
+  // console.log(tempUpload);
+  // const { path: tempUpload, originalname } = req.file;
 
-  await Jimp.read(tempUpload)
-    .then((avatar) => {
-      return avatar
-        .resize(250, 250) // resize
-        .quality(60) // set JPEG quality
-        .write(tempUpload); // save
-    })
-    .catch((err) => {
-      throw err;
-    });
+  // await Jimp.read(tempUpload)
+  //   .then((avatar) => {
+  //     return (
+  //       avatar
+  //         // .resize(250, 250) // resize
+  //         .quality(60) // set JPEG quality
+  //         .write(tempUpload)
+  //     ); // save
+  //   })
+  //   .catch((err) => {
+  //     throw err;
+  //   });
 
-  const fileName = `${_id}_${originalname}`;
+  // const fileName = `${_id}_${originalname}`;
 
-  const publicUpload = path.join(avatarDir, fileName);
+  // const publicUpload = path.join(avatarDir, fileName);
 
-  await fs.rename(tempUpload, publicUpload);
+  // await fs.rename(tempUpload, publicUpload);
 
-  const avatarUrl = path.join('avatars', fileName);
+  // const avatarUrl = path.join('avatars', fileName);
+
+  const fileData = await cloudinary.uploader.upload(tempUpload, {
+    folder: 'avatars',
+  });
+
+  console.log('FILEDATA', fileData);
+  // збережений в папку temp файл - видаляємо
+  await fs.unlink(tempUpload);
+
   const name = req.body.name;
 
-  const user = await User.findByIdAndUpdate(_id, { avatarUrl, name }, { new: true });
+  // const user = await User.findByIdAndUpdate(_id, { avatarUrl, name }, { new: true });
+  const user = await User.findByIdAndUpdate(_id, { avatarUrl: fileData.url, name }, { new: true });
 
   res.json({
     token: user.token,
