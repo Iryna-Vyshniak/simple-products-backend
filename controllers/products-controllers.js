@@ -14,7 +14,7 @@ const typeOptions = ['fruit', 'berry', 'vegetable', 'dairy'];
 // http://localhost:3500/api/products?page=1&limit=5&type=dairy&sort=price,desc&search=smoothie
 // http://localhost:3500/api/products?page=1&limit=5&type=berry,fruit&sort=price,desc&favorite=true
 
-const getAllProducts = async (req, res) => {
+/* const getAllProducts = async (req, res) => {
   // console.log(req.user);
   const { _id: owner } = req.user;
   const { page: currentPage, limit: currentLimit, favorite, name = '' } = req.query;
@@ -35,7 +35,8 @@ const getAllProducts = async (req, res) => {
   }
 
   const products = await Product.find(
-    favorite ? { owner, favorite } : { owner, name: { $regex: name, $options: 'i' } },
+    favorite ? { owner, favorite } : { owner },
+    // : { owner, name: { $regex: name, $options: 'i' } },
     '-createdAt, -updatedAt',
     { limit, skip }
   )
@@ -44,6 +45,7 @@ const getAllProducts = async (req, res) => {
     .sort(sortBy)
     .populate('owner'); // отримуємо усі дані власника
   // .populate('owner', 'name email');
+ 
   const count = await Product.countDocuments({
     type: { $in: [...type] },
     name: { $regex: name, $options: 'i' },
@@ -56,17 +58,17 @@ const getAllProducts = async (req, res) => {
     limit,
     type: typeOptions,
   });
-};
+}; */
 
-/* const getAllProducts = async (req, res) => {
+const getAllProducts = async (req, res) => {
   // console.log(req.user);
   const { _id: owner } = req.user;
   // const { page = 1, limit = 10, favorite } = req.query;
-  const { page: currentPage, limit: currentLimit, favorite } = req.query;
+  const { page: currentPage, limit: currentLimit, favorite, name = '' } = req.query;
   const { page, limit, skip } = pagination(currentPage, currentLimit);
 
   const products = await Product.find(
-    favorite ? { owner, favorite } : { owner },
+    favorite ? { owner, favorite } : { owner, name: { $regex: name, $options: 'i' } },
     '-createdAt, -updatedAt',
     { limit, skip }
   )
@@ -74,11 +76,11 @@ const getAllProducts = async (req, res) => {
     // .skip()
     .populate('owner'); // отримуємо усі дані власника
   // .populate('owner', 'name email');
-  const count = await Product.countDocuments();
+  const count = await Product.countDocuments({ name: { $regex: name, $options: 'i' } });
   // const count = await Product.where({ owner, ...req.query }).countDocuments();
   // console.log('COUNT', count);
   res.json({ products, totalPages: Math.ceil(count / limit), currentPage: page });
-}; */
+};
 
 const createProduct = async (req, res) => {
   const { body, file } = req;
