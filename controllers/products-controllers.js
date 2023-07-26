@@ -17,7 +17,7 @@ const typeOptions = ['fruit', 'berry', 'vegetable', 'dairy'];
 const getAllProducts = async (req, res) => {
   // console.log(req.user);
   const { _id: owner } = req.user;
-  const { page: currentPage, limit: currentLimit, favorite, search = '' } = req.query;
+  const { page: currentPage, limit: currentLimit, favorite, name = '' } = req.query;
 
   let type = req.query.type || 'all';
   let sort = req.query.sort || 'price';
@@ -35,7 +35,7 @@ const getAllProducts = async (req, res) => {
   }
 
   const products = await Product.find(
-    favorite ? { owner, favorite } : { owner, name: { $regex: search, $options: 'i' } },
+    favorite ? { owner, favorite } : { owner, name: { $regex: name, $options: 'i' } },
     '-createdAt, -updatedAt',
     { limit, skip }
   )
@@ -46,7 +46,7 @@ const getAllProducts = async (req, res) => {
   // .populate('owner', 'name email');
   const count = await Product.countDocuments({
     type: { $in: [...type] },
-    name: { $regex: search, $options: 'i' },
+    name: { $regex: name, $options: 'i' },
   });
 
   res.json({
