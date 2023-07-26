@@ -183,7 +183,7 @@ const updateUser = async (req, res, next) => {
     folder: 'avatars',
   });
 
-  console.log('FILEDATA', fileData);
+  // console.log('FILEDATA', fileData);
   // збережений в папку temp файл - видаляємо
   await fs.unlink(tempUpload);
 
@@ -205,7 +205,7 @@ const updateUser = async (req, res, next) => {
 
 // get current user
 const getCurrent = async (req, res) => {
-  console.log(req.user);
+  // console.log(req.user);
   const { name, email, token, avatarUrl } = req.user;
   res.json({
     token,
