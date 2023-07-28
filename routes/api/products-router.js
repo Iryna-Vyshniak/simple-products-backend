@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.use(checkAuth);
 
-router.get('/', ctrl.getAllProducts);
+router.get('/', ctrl.getProducts);
 router.get('/:id', isValidId, ctrl.getProductById);
 
 // upload.fields({name: 'poster', maxCount: 1}, {name: 'cards', maxCount: 2})
