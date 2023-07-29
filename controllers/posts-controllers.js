@@ -4,11 +4,13 @@ const HttpError = require('../helpers/HttpError');
 const cloudinary = require('../helpers/cloudinary');
 const fs = require('fs/promises');
 
+// GET ALL POSTS
 const getAll = async (req, res) => {
   const posts = await Post.find({}).populate('owner', '_id name email avatarUrl');
   res.json(posts);
 };
 
+// CREATE POST
 const createPost = async (req, res) => {
   const { _id: owner } = req.user;
 
@@ -29,8 +31,8 @@ const createPost = async (req, res) => {
   res.status(201).json(post);
 };
 
+// GET ONE
 const getOne = async (req, res) => {
-  // console.log(req.user);
   const postId = req.params.id;
 
   const post = await Post.findOneAndUpdate(
@@ -44,8 +46,25 @@ const getOne = async (req, res) => {
   res.json(post);
 };
 
+// DELETE
+const deletePost = async (req, res) => {
+  const postId = req.params.id;
+  const owner = req.user._id;
+
+  const post = await Post.findOneAndDelete({ _id: postId, owner }, req.body, { new: true });
+
+  if (!post) {
+    throw HttpError(404, 'Not Found Post');
+  }
+
+  res.json({
+    message: 'Post successfully deleted',
+  });
+};
+
 module.exports = {
   getAll: ctrlWrapper(getAll),
   createPost: ctrlWrapper(createPost),
   getOne: ctrlWrapper(getOne),
+  deletePost: ctrlWrapper(deletePost),
 };
