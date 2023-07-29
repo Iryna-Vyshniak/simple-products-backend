@@ -1,11 +1,17 @@
 const { Router } = require('express');
 const ctrl = require('../../controllers/posts-controllers.js');
-const { shemas } = require('../../models/post');
+// import * as ctrl from '../../controllers/posts-controllers';
 const { checkAuth, isValidId, upload } = require('../../middlewares');
+const validateBody = require('../../decorators/validateBody');
 const postCreateValidation = require('../../validations/post');
+// const validate = require('../../decorators/validation');
 
 const router = Router();
 
-router.get('/');
+router.get('/', ctrl.getAll);
+// router.get('/:id', isValidId, ctrl.getOne);
+router.post('/', checkAuth, postCreateValidation, ctrl.createPost);
+// router.delete('/:id', checkAuth, isValidId, ctrl.deletePost);
+// router.patch('/', checkAuth, ctrl.updatePost);
 
 module.exports = router;
