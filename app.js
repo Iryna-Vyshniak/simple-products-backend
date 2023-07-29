@@ -5,8 +5,9 @@ require('dotenv').config();
 
 const app = express(); // web server
 
-const productsRouter = require('./routes/api/products-router');
 const authRouter = require('./routes/api/auth-router');
+const productsRouter = require('./routes/api/products-router');
+const postsRouter = require('./routes/api/posts-router');
 
 const formatLogger = app.get('env') === 'development' ? 'dev' : 'short';
 
@@ -19,6 +20,7 @@ app.use(express.static('public'));
 
 app.use('/api/auth', authRouter);
 app.use('/api/products', productsRouter);
+app.use('/api/posts', postsRouter);
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Not Found' });
