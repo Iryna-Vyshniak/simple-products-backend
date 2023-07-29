@@ -62,9 +62,24 @@ const deletePost = async (req, res) => {
   });
 };
 
+// UPDATE
+const updatePost = async (req, res) => {
+  const postId = req.params.id;
+  const owner = req.user._id;
+
+  const post = await Post.findOneAndUpdate({ _id: postId, owner }, req.body, { new: true });
+
+  if (!post) {
+    throw HttpError(404, 'Not Found Post');
+  }
+
+  res.json(post);
+};
+
 module.exports = {
   getAll: ctrlWrapper(getAll),
   createPost: ctrlWrapper(createPost),
   getOne: ctrlWrapper(getOne),
   deletePost: ctrlWrapper(deletePost),
+  updatePost: ctrlWrapper(updatePost),
 };
