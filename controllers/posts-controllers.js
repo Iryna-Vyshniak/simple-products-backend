@@ -29,11 +29,23 @@ const createPost = async (req, res) => {
   res.status(201).json(post);
 };
 
+const getOne = async (req, res) => {
+  // console.log(req.user);
+  const postId = req.params.id;
 
+  const post = await Post.findOneAndUpdate(
+    { _id: postId },
+    { $inc: { viewsCount: 1 } },
+    { new: true }
+  );
+  if (!post) {
+    throw HttpError(404, 'Not Found Post');
+  }
+  res.json(post);
+};
 
 module.exports = {
   getAll: ctrlWrapper(getAll),
   createPost: ctrlWrapper(createPost),
-//   getOne: ctrlWrapper(getOne),
-//   deletePost: ctrlWrapper(deletePost),
+  getOne: ctrlWrapper(getOne),
 };
