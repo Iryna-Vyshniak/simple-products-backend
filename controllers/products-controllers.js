@@ -27,7 +27,8 @@ const getProducts = async (req, res) => {
   name && (query.name = { $regex: name, $options: 'i' });
 
   const products = await Product.find(query, '-createdAt, -updatedAt', { limit, skip }).populate(
-    'owner'
+    'owner',
+    '_id name email avatarUrl'
   ); // отримуємо усі дані власника
   // .populate('owner', 'name email');
   const count = await Product.countDocuments();
@@ -78,6 +79,11 @@ const getProductById = async (req, res) => {
   if (!result) {
     throw HttpError(404, 'Not Found');
   }
+
+  // result.type = 'product';
+
+  // await result.save();
+
   res.json(result);
 };
 
