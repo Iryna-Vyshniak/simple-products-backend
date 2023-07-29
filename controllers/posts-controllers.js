@@ -13,10 +13,17 @@ const getAll = async (req, res) => {
 // CREATE POST
 const createPost = async (req, res) => {
   const { _id: owner } = req.user;
+  const { path: oldPath } = req.file;
 
+  const fileData = await cloudinary.uploader.upload(oldPath, {
+    folder: 'posts',
+  });
+
+  // await fs.unlink(oldPath);
   const post = await Post.create({
     ...req.body,
     owner,
+    imageUrl: fileData.url,
   });
   //   const doc = new Post({
   //     title: req.body.title,
