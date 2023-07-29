@@ -9,9 +9,9 @@ const postCreateValidation = require('../../validations/post');
 const router = Router();
 
 router.get('/', ctrl.getAll);
-// router.get('/:id', isValidId, ctrl.getOne);
+router.get('/:id', isValidId, ctrl.getOne);
 router.post('/', checkAuth, postCreateValidation, ctrl.createPost);
-// router.delete('/:id', checkAuth, isValidId, ctrl.deletePost);
-// router.patch('/', checkAuth, ctrl.updatePost);
+router.delete('/:id', checkAuth, isValidId, ctrl.deletePost);
+router.patch('/:id', checkAuth, isValidId, ctrl.updatePost);
 
 module.exports = router;
