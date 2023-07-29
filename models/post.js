@@ -22,13 +22,11 @@ const postSchema = new Schema(
     },
     imageUrl: {
       type: String,
-      required: true,
     },
     owner: {
       type: Schema.Types.ObjectId,
-      required: true,
-      unique: true,
       ref: 'user',
+      required: true,
     },
   },
   { versionKey: false, timestamps: true }
