@@ -105,10 +105,30 @@ const updatePost = async (req, res) => {
   res.json(post);
 };
 
+const getUserPosts = async (req, res) => {
+  const { posts } = req.user;
+  // console.log('POSTS', posts);
+  // Видаляємо null або невизначені значення
+  const validPosts = posts.filter((post) => post !== null && post._id);
+
+  const postIds = await validPosts.map((post) => post._id);
+  // console.log(postIds);
+
+  // опцією $in, щоб знайти всі пости, які мають ідентифікатор, який знаходиться в postIds. Отриманий результат - postList - містить знайдені пости за цими ідентифікаторами.
+  const postList = await Post.find({ _id: { $in: postIds } });
+
+  if (postList.length === 0) {
+    throw HttpError(404, 'Not Found Posts');
+  }
+
+  res.json(postList);
+};
+
 module.exports = {
   getAll: ctrlWrapper(getAll),
   createPost: ctrlWrapper(createPost),
   getOne: ctrlWrapper(getOne),
   deletePost: ctrlWrapper(deletePost),
   updatePost: ctrlWrapper(updatePost),
+  getUserPosts: ctrlWrapper(getUserPosts),
 };
