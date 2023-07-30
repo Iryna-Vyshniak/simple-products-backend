@@ -10,6 +10,9 @@ const router = Router();
 
 router.get('/', ctrl.getAll);
 router.get('/:id', isValidId, ctrl.getOne);
+
+// private
+router.get('/user/posts', checkAuth, ctrl.getUserPosts);
 router.post('/', checkAuth, uploadCloud.single('image'), postCreateValidation, ctrl.createPost);
 router.delete('/:id', checkAuth, isValidId, ctrl.deletePost);
 router.patch('/:id', checkAuth, isValidId, ctrl.updatePost);
