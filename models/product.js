@@ -38,6 +38,9 @@ const productSchema = new Schema(
 );
 
 productSchema.post('save', handleMongooseError);
+// Створюємо індекс для поля "name"
+// Індексація поля "name" в базі даних MongoDB дозволяє прискорити пошук і покращити продуктивність запитів, які використовують це поле для пошуку. Коли ви індексуєте поле, MongoDB створює спеціальну структуру даних, яка допомагає швидше знаходити відповідні значення.
+// productSchema.index({ name: 'text' });
 
 const productAddSchema = Joi.object({
   name: Joi.string().required().messages({ 'any.required': `name must be exists` }),

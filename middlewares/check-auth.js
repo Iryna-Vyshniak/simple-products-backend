@@ -42,7 +42,7 @@ const { SECRET_KEY } = process.env;
 
 const checkAuth = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  console.log(req.headers);
+  // console.log(req.headers);
 
   if (typeof authHeader !== 'string') {
     throw HttpError(401, 'No token provided');
