@@ -3,11 +3,31 @@ const ctrlWrapper = require('../decorators/ctrlWrapper');
 const HttpError = require('../helpers/HttpError');
 const cloudinary = require('../helpers/cloudinary');
 const fs = require('fs/promises');
+const { User } = require('../models/user');
+const pagination = require('../utils/pagination');
+const { isMainThread } = require('worker_threads');
 
 // GET ALL POSTS
 const getAll = async (req, res) => {
-  const posts = await Post.find({}).populate('owner', '_id name email avatarUrl');
-  res.json(posts);
+  const { page: currentPage, limit: currentLimit } = req.query;
+
+  const { page, limit, skip } = pagination(currentPage, currentLimit);
+
+  const posts = await Post.find({}, '', { skip, limit })
+    .populate('owner', '_id name email avatarUrl')
+    .sort('-createdAt');
+
+  const popularPosts = await Post.find({}, '', { skip, limit }).sort('-viewsCount');
+  const totalPosts = await Post.find().count();
+
+  res.json({
+    posts,
+    popularPosts,
+    totalPosts,
+    totalPages: Math.ceil(totalPosts / limit),
+    currentPage: page,
+    limit,
+  });
 };
 
 // CREATE POST
@@ -34,6 +54,8 @@ const createPost = async (req, res) => {
   //   });
 
   //   const post = await doc.save();
+
+  await User.findByIdAndUpdate(owner, { $push: { posts: post } }, { new: true });
 
   res.status(201).json(post);
 };
