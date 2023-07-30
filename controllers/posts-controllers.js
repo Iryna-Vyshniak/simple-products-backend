@@ -5,7 +5,6 @@ const cloudinary = require('../helpers/cloudinary');
 const fs = require('fs/promises');
 const { User } = require('../models/user');
 const pagination = require('../utils/pagination');
-const { isMainThread } = require('worker_threads');
 
 // GET ALL POSTS
 const getAll = async (req, res) => {
@@ -16,6 +15,10 @@ const getAll = async (req, res) => {
   const posts = await Post.find({}, '', { skip, limit })
     .populate('owner', '_id name email avatarUrl')
     .sort('-createdAt');
+
+  if (!posts) {
+    throw HttpError(404, 'Not Found Post');
+  }
 
   const popularPosts = await Post.find({}, '', { skip, limit }).sort('-viewsCount');
   const totalPosts = await Post.find().count();
@@ -124,6 +127,30 @@ const getUserPosts = async (req, res) => {
   res.json(postList);
 };
 
+const getPostsByTag = async (req, res) => {
+  const { page: currentPage, limit: currentLimit } = req.query;
+
+  const { page, limit, skip } = pagination(currentPage, currentLimit);
+
+  const { tag } = req.params;
+
+  const posts = await Post.find({ tags: [`${tag}`] }, '', { skip, limit }).sort('createdAt');
+
+  if (!posts) {
+    throw HttpError(404, 'Not Found Post');
+  }
+
+  const totalPosts = await Post.find({ tags: [`${tag}`] }).count();
+
+  res.json({
+    posts,
+    totalPosts,
+    totalPages: Math.ceil(totalPosts / limit),
+    currentPage: page,
+    limit,
+  });
+};
+
 module.exports = {
   getAll: ctrlWrapper(getAll),
   createPost: ctrlWrapper(createPost),
@@ -131,4 +158,5 @@ module.exports = {
   deletePost: ctrlWrapper(deletePost),
   updatePost: ctrlWrapper(updatePost),
   getUserPosts: ctrlWrapper(getUserPosts),
+  getPostsByTag: ctrlWrapper(getPostsByTag),
 };
