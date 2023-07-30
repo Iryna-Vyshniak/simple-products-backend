@@ -10,6 +10,7 @@ const router = Router();
 
 router.get('/', ctrl.getAll);
 router.get('/:id', isValidId, ctrl.getOne);
+router.get('/tags/:tag', ctrl.getPostsByTag);
 
 // private
 router.get('/user/posts', checkAuth, ctrl.getUserPosts);
