@@ -38,6 +38,10 @@ const userSchema = new Schema(
       type: String,
       required: [true, 'Verify token is required'],
     },
+    posts: [{
+      type: Schema.Types.ObjectId,
+      ref: 'post',
+    }]
   },
   { versionKey: false, timestamps: true }
 );
