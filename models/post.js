@@ -13,7 +13,8 @@ const postSchema = new Schema(
       unique: true,
     },
     tags: {
-      type: Array,
+      type: [String],
+      enum: ['war', 'animal', 'fashion', 'science'],
       default: [],
     },
     viewsCount: {
@@ -22,12 +23,19 @@ const postSchema = new Schema(
     },
     imageUrl: {
       type: String,
+      default: '',
+    },
+    favorites: {
+      type: [Schema.Types.ObjectId],
+      default: [],
+      ref: 'user',
     },
     owner: {
       type: Schema.Types.ObjectId,
       ref: 'user',
       required: true,
     },
+    comments: [{ type: Schema.Types.ObjectId, ref: 'user' }],
   },
   { versionKey: false, timestamps: true }
 );
