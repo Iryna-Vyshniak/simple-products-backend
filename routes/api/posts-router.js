@@ -9,13 +9,14 @@ const postCreateValidation = require('../../validations/post');
 const router = Router();
 
 router.get('/', ctrl.getAll);
-router.get('/:id', isValidId, ctrl.getOne);
+router.get('/search', ctrl.getSearchPosts);
 router.get('/tags/:tag', ctrl.getPostsByTag);
+router.get('/:id', isValidId, ctrl.getOne);
 
 // private
 router.get('/user/posts', checkAuth, ctrl.getUserPosts);
 router.post('/', checkAuth, uploadCloud.single('image'), postCreateValidation, ctrl.createPost);
-router.delete('/:id', checkAuth, isValidId, ctrl.deletePost);
 router.patch('/:id', checkAuth, isValidId, ctrl.updatePost);
+router.delete('/:id', checkAuth, isValidId, ctrl.deletePost);
 
 module.exports = router;
