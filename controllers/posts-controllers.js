@@ -108,6 +108,7 @@ const updatePost = async (req, res) => {
   res.json(post);
 };
 
+// GET ALL USER POSTS
 const getUserPosts = async (req, res) => {
   const { posts } = req.user;
   // console.log('POSTS', posts);
@@ -127,6 +128,7 @@ const getUserPosts = async (req, res) => {
   res.json(postList);
 };
 
+// GET POSTS BY TAG
 const getPostsByTag = async (req, res) => {
   const { page: currentPage, limit: currentLimit } = req.query;
 
@@ -151,6 +153,59 @@ const getPostsByTag = async (req, res) => {
   });
 };
 
+// GET SEARCH POST
+const getSearchPosts = async (req, res) => {
+  const { page: currentPage, limit: currentLimit, name = '' } = req.query;
+
+  const { page, skip, limit } = pagination(currentPage, currentLimit);
+
+  const query = {
+    ...(page && page),
+    ...(name && { title: { $regex: name, $options: 'i' } }),
+  };
+
+  if (!query) {
+    const posts = await Post.find();
+
+    res.json(posts);
+  }
+
+  const searchPosts = await Post.find(query, '', { skip, limit }).populate(
+    'owner',
+    '_id name email avatarUrl'
+  );
+
+  const totalPosts = await Post.find(query).count();
+
+  res.json({
+    searchPosts,
+    totalPosts,
+    totalPages: Math.ceil(totalPosts / limit),
+    currentPage: page,
+    limit,
+  });
+
+  // const { name = '' } = req.query;
+
+  // if (!name) {
+  //   const posts = await Post.find();
+
+  //   return res.json(posts);
+  // }
+
+  // const searchPosts = await Post.find();
+
+  // const filteredPosts = searchPosts.filter((post) =>
+  //   post.title.toLowerCase().includes(name.toLowerCase())
+  // );
+
+  // if (filteredPosts.length === 0) {
+  //   throw HttpError(404, 'Not Found Post');
+  // }
+
+  // res.json(filteredPosts);
+};
+
 module.exports = {
   getAll: ctrlWrapper(getAll),
   createPost: ctrlWrapper(createPost),
@@ -159,4 +214,5 @@ module.exports = {
   updatePost: ctrlWrapper(updatePost),
   getUserPosts: ctrlWrapper(getUserPosts),
   getPostsByTag: ctrlWrapper(getPostsByTag),
+  getSearchPosts: ctrlWrapper(getSearchPosts),
 };
