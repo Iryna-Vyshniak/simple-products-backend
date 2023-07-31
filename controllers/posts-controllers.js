@@ -98,14 +98,39 @@ const deletePost = async (req, res) => {
 const updatePost = async (req, res) => {
   const postId = req.params.id;
   const owner = req.user._id;
+  const { body, file } = req;
 
-  const post = await Post.findOneAndUpdate({ _id: postId, owner }, req.body, { new: true });
+  const post = await Post.findById({ _id: postId });
 
   if (!post) {
     throw HttpError(404, 'Not Found Post');
   }
 
-  res.json(post);
+  const updateData = {
+    title: body.title,
+    text: body.text,
+  };
+
+  if (file) {
+    const { path: oldPath } = file;
+
+    const fileData = await cloudinary.uploader.upload(oldPath, {
+      folder: 'posts',
+    });
+
+    updateData.imageUrl = fileData.url;
+  }
+
+  const updatePost = await Post.findByIdAndUpdate(
+    {
+      _id: postId,
+      owner,
+    },
+    updateData,
+    { new: true }
+  );
+
+  res.json(updatePost);
 };
 
 // GET ALL USER POSTS
