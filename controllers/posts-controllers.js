@@ -2,7 +2,7 @@ const Post = require('../models/post');
 const ctrlWrapper = require('../decorators/ctrlWrapper');
 const HttpError = require('../helpers/HttpError');
 const cloudinary = require('../helpers/cloudinary');
-const fs = require('fs/promises');
+// const fs = require('fs/promises');
 const { User } = require('../models/user');
 const pagination = require('../utils/pagination');
 
@@ -21,7 +21,8 @@ const getAll = async (req, res) => {
   }
 
   const popularPosts = await Post.find({}, '', { skip, limit }).sort('-viewsCount');
-  const totalPosts = await Post.find().count();
+  const totalPosts = await Post.countDocuments();
+  //  const totalPosts = await Post.find().count();
 
   res.json({
     posts,
@@ -167,7 +168,7 @@ const getPostsByTag = async (req, res) => {
     throw HttpError(404, 'Not Found Post');
   }
 
-  const totalPosts = await Post.find({ tags: [`${tag}`] }).count();
+  const totalPosts = await Post.countDocuments();
 
   res.json({
     posts,
@@ -200,7 +201,7 @@ const getSearchPosts = async (req, res) => {
     '_id name email avatarUrl'
   );
 
-  const totalPosts = await Post.find(query).count();
+  const totalPosts = await Post.countDocuments();
 
   res.json({
     searchPosts,
@@ -231,6 +232,12 @@ const getSearchPosts = async (req, res) => {
   // res.json(filteredPosts);
 };
 
+const getAllTags = async (req, res) => {
+  const tags = await Post.distinct('tags');
+
+  res.json(tags);
+};
+
 module.exports = {
   getAll: ctrlWrapper(getAll),
   createPost: ctrlWrapper(createPost),
@@ -240,4 +247,5 @@ module.exports = {
   getUserPosts: ctrlWrapper(getUserPosts),
   getPostsByTag: ctrlWrapper(getPostsByTag),
   getSearchPosts: ctrlWrapper(getSearchPosts),
+  getAllTags: ctrlWrapper(getAllTags),
 };
