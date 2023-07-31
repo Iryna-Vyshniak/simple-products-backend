@@ -22,9 +22,10 @@ const getProducts = async (req, res) => {
   const query = {
     ...(favorite === undefined ? { owner } : { owner, favorite }),
     ...(page && page),
+    ...(name && { name: { $regex: name, $options: 'i' } }),
   };
 
-  name && (query.name = { $regex: name, $options: 'i' });
+  // name && (query.name = { $regex: name, $options: 'i' });
 
   const products = await Product.find(query, '-createdAt, -updatedAt', { limit, skip }).populate(
     'owner',
