@@ -72,7 +72,7 @@ const getOne = async (req, res) => {
     { _id: postId },
     { $inc: { viewsCount: 1 } },
     { new: true }
-  );
+  ).populate('owner', '_id name email avatarUrl');
   if (!post) {
     throw HttpError(404, 'Not Found Post');
   }
