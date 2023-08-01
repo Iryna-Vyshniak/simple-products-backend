@@ -168,7 +168,7 @@ const getPostsByTag = async (req, res) => {
     throw HttpError(404, 'Not Found Post');
   }
 
-  const totalPosts = await Post.countDocuments();
+  const totalPosts = await Post.find({ tags: [`${tag}`] }).count();
 
   res.json({
     posts,
