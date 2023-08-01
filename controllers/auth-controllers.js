@@ -126,6 +126,7 @@ const signIn = async (req, res, next) => {
   res.json({
     token,
     user: {
+      _id: candidate._id,
       name: candidate.name,
       email: candidate.email,
       avatarUrl: candidate.avatarUrl,
