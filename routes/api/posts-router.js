@@ -15,7 +15,8 @@ router.get('/search', ctrl.getSearchPosts);
 router.get('/:id', isValidId, ctrl.getOne);
 
 // private
-router.get('/user/posts', checkAuth, ctrl.getUserPosts);
+router.get('/users/:user', checkAuth, ctrl.getUserPosts);
+// router.get('/user/posts', checkAuth, ctrl.getUserPosts);
 router.post('/', checkAuth, uploadCloud.single('image'), postCreateValidation, ctrl.createPost);
 router.patch('/:id', checkAuth, isValidId, uploadCloud.single('image'), ctrl.updatePost);
 router.delete('/:id', checkAuth, isValidId, ctrl.deletePost);
