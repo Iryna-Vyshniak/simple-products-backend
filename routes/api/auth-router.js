@@ -10,6 +10,7 @@ router.post('/signup', validateBody(schemas.registerSchema), ctrl.signUp);
 router.get('/verify/:verificationToken', ctrl.verify);
 router.post('/verify', validateBody(schemas.userEmailSchema), ctrl.resendVerify);
 router.post('/signin', validateBody(schemas.loginSchema), ctrl.signIn);
+router.get('/users', checkAuth, ctrl.getAllUsers);
 router.get('/current', checkAuth, ctrl.getCurrent);
 router.post('/logout', checkAuth, ctrl.logout);
 router.patch('/user', checkAuth, upload.single('avatar'), ctrl.updateUser);
