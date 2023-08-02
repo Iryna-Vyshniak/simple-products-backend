@@ -218,6 +218,20 @@ const getCurrent = async (req, res) => {
   });
 };
 
+const getAllUsers = async (req, res) => {
+  const users = await User.find().sort('posts.length');
+  // console.log('USERS', users);
+
+  const popularAuthor = users.filter((user) => user.posts.length > 0);
+  // console.log(popularAuthor);
+
+  if (!users || !popularAuthor) {
+    throw HttpError(404, 'Users not found');
+  }
+
+  res.json({ users: popularAuthor });
+};
+
 module.exports = {
   signUp: ctrlWrapper(signUp),
   verify: ctrlWrapper(verify),
@@ -226,4 +240,5 @@ module.exports = {
   logout: ctrlWrapper(logout),
   updateUser: ctrlWrapper(updateUser),
   getCurrent: ctrlWrapper(getCurrent),
+  getAllUsers: ctrlWrapper(getAllUsers),
 };
