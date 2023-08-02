@@ -27,12 +27,18 @@ const getProducts = async (req, res) => {
 
   // name && (query.name = { $regex: name, $options: 'i' });
 
+  if (!query) {
+    const products = await Product.find();
+
+    res.json(products);
+  }
+
   const products = await Product.find(query, '-createdAt, -updatedAt', { limit, skip }).populate(
     'owner',
     '_id name email avatarUrl'
   ); // отримуємо усі дані власника
   // .populate('owner', 'name email');
-  const count = await Product.countDocuments();
+  const count = await Product.find(query).count();
   // const count = await Product.where({ owner, ...req.query }).countDocuments();
   // console.log('COUNT', count);
   res.json({
