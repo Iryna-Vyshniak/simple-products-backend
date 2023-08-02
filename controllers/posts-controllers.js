@@ -136,23 +136,44 @@ const updatePost = async (req, res) => {
 
 // GET ALL USER POSTS
 const getUserPosts = async (req, res) => {
-  const { posts } = req.user;
-  // console.log('POSTS', posts);
-  // Видаляємо null або невизначені значення
-  const validPosts = posts.filter((post) => post !== null && post._id);
+  const { user } = req.params;
+  console.log(user);
 
-  const postIds = await validPosts.map((post) => post._id);
-  // console.log(postIds);
+  const postList = await Post.find().populate({
+    path: 'owner',
+    match: { name: user },
+    select: '_id name email avatarUrl',
+  });
 
-  // опцією $in, щоб знайти всі пости, які мають ідентифікатор, який знаходиться в postIds. Отриманий результат - postList - містить знайдені пости за цими ідентифікаторами.
-  const postList = await Post.find({ _id: { $in: postIds } });
+  const filteredPosts = postList.filter((post) => post.owner !== null);
 
-  if (postList.length === 0) {
-    throw HttpError(404, 'Not Found Posts');
+  if (filteredPosts.length === 0) {
+    throw new HttpError(404, 'Not Found Posts');
   }
 
-  res.json(postList);
+  res.json({ posts: filteredPosts });
 };
+// const getUserPosts = async (req, res) => {
+//   const { posts } = req.user;
+//   // console.log('POSTS', posts);
+//   // Видаляємо null або невизначені значення
+//   const validPosts = posts.filter((post) => post !== null && post._id);
+
+//   const postIds = await validPosts.map((post) => post._id);
+//   // console.log(postIds);
+
+//   // опцією $in, щоб знайти всі пости, які мають ідентифікатор, який знаходиться в postIds. Отриманий результат - postList - містить знайдені пости за цими ідентифікаторами.
+//   const postList = await Post.find({ _id: { $in: postIds } }).populate(
+//     'owner',
+//     '_id name email avatarUrl'
+//   );
+
+//   if (postList.length === 0) {
+//     throw HttpError(404, 'Not Found Posts');
+//   }
+
+//   res.json({ posts: postList });
+// };
 
 // GET POSTS BY TAG
 const getPostsByTag = async (req, res) => {
@@ -196,15 +217,15 @@ const getSearchPosts = async (req, res) => {
     res.json(posts);
   }
 
-  const searchPosts = await Post.find(query, '', { skip, limit }).populate(
+  const posts = await Post.find(query, '', { skip, limit }).populate(
     'owner',
     '_id name email avatarUrl'
   );
 
-  const totalPosts = await Post.countDocuments();
+  const totalPosts = await Post.find(query).count();
 
   res.json({
-    searchPosts,
+    posts,
     totalPosts,
     totalPages: Math.ceil(totalPosts / limit),
     currentPage: page,
