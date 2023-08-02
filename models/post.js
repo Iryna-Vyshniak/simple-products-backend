@@ -25,15 +25,14 @@ const postSchema = new Schema(
       type: String,
       default: '',
     },
-    favorites: {
-      type: [Schema.Types.ObjectId],
-      default: [],
-      ref: 'user',
-    },
     owner: {
       type: Schema.Types.ObjectId,
       ref: 'user',
       required: true,
+    },
+    likedBy: {
+      type: [{ type: Schema.Types.ObjectId, ref: 'user' }],
+      default: [],
     },
     comments: [{ type: Schema.Types.ObjectId, ref: 'user' }],
   },
