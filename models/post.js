@@ -14,7 +14,7 @@ const postSchema = new Schema(
     },
     tags: {
       type: [String],
-      enum: ['war', 'animal', 'fashion', 'science', 'politics', 'sport', 'food'],
+      enum: ['war', 'animal', 'fashion', 'science', 'politics', 'sport', 'food', 'travel'],
       default: [],
     },
     viewsCount: {
