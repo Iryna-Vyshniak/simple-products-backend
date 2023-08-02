@@ -38,6 +38,11 @@ const userSchema = new Schema(
       type: String,
       required: [true, 'Verify token is required'],
     },
+    favorites: {
+      type: [Schema.Types.ObjectId],
+      default: [],
+      ref: 'post',
+    },
     posts: [
       {
         type: Schema.Types.ObjectId,
