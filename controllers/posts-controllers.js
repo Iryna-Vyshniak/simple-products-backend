@@ -1,9 +1,9 @@
 const Post = require('../models/post');
+const { User } = require('../models/user');
 const ctrlWrapper = require('../decorators/ctrlWrapper');
 const HttpError = require('../helpers/HttpError');
 const cloudinary = require('../helpers/cloudinary');
 // const fs = require('fs/promises');
-const { User } = require('../models/user');
 const pagination = require('../utils/pagination');
 
 // GET ALL POSTS
@@ -259,6 +259,32 @@ const getAllTags = async (req, res) => {
   res.json(tags);
 };
 
+// FAVORITES POSTS
+const setFavoritePost = async (req, res) => {
+  const owner = req.user._id;
+  const { id } = req.params;
+
+  const post = await Post.findById(id);
+
+  if (!post) {
+    throw HttpError(404, 'Could not find post for provided id.');
+  }
+  // В даному випадку краще використовувати $addToSet (not  $push:), оскільки це дозволить додавати унікальні значення до масиву, запобігаючи дублікатам. Якщо користувач вже лайкнув пост або додав його до улюблених, це не призведе до додавання додаткових елементів у масив.
+  const user = await User.findByIdAndUpdate(owner, { $addToSet: { favorites: id } });
+
+  if (!user) {
+    throw HttpError(404, `Post not found`);
+  }
+
+  if (user.favorites.includes(id)) {
+    throw HttpError(422, `Post is already in favorites.`);
+  }
+
+  await Post.findByIdAndUpdate(id, { $addToSet: { likedBy: owner } });
+
+  res.status(201).json({ message: 'Post added to favorites successfully' });
+};
+
 module.exports = {
   getAll: ctrlWrapper(getAll),
   createPost: ctrlWrapper(createPost),
@@ -269,4 +295,5 @@ module.exports = {
   getPostsByTag: ctrlWrapper(getPostsByTag),
   getSearchPosts: ctrlWrapper(getSearchPosts),
   getAllTags: ctrlWrapper(getAllTags),
+  setFavoritePost: ctrlWrapper(setFavoritePost),
 };
