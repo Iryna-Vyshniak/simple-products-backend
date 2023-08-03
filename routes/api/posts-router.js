@@ -18,6 +18,7 @@ router.get('/:id', isValidId, ctrl.getOne);
 router.get('/users/:user', checkAuth, ctrl.getUserPosts);
 // router.get('/user/posts', checkAuth, ctrl.getUserPosts);
 router.post('/', checkAuth, uploadCloud.single('image'), postCreateValidation, ctrl.createPost);
+router.post('/:id/setFavorites', checkAuth, ctrl.setFavoritePost);
 router.patch('/:id', checkAuth, isValidId, uploadCloud.single('image'), ctrl.updatePost);
 router.delete('/:id', checkAuth, isValidId, ctrl.deletePost);
 
