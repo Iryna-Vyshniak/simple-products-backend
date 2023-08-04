@@ -11,6 +11,7 @@ const HttpError = require('../helpers/HttpError');
 const sendEmail = require('../helpers/sendEmail');
 const ctrlWrapper = require('../decorators/ctrlWrapper');
 const cloudinary = require('../helpers/cloudinary');
+// const Post = require('../models/post');
 
 const { SECRET_KEY, FRONTEND_URL } = process.env;
 
@@ -130,6 +131,7 @@ const signIn = async (req, res, next) => {
       name: candidate.name,
       email: candidate.email,
       avatarUrl: candidate.avatarUrl,
+      favorites: candidate.favorites,
     },
   });
 };
@@ -200,6 +202,7 @@ const updateUser = async (req, res, next) => {
       name: user.name,
       email: user.email,
       avatarUrl: user.avatarUrl,
+      favorites: user.favorites,
     },
   });
 };
@@ -207,13 +210,15 @@ const updateUser = async (req, res, next) => {
 // get current user
 const getCurrent = async (req, res) => {
   // console.log(req.user);
-  const { name, email, token, avatarUrl } = req.user;
+  const { _id, name, email, token, avatarUrl, favorites } = req.user;
   res.json({
     token,
     user: {
+      _id,
       name,
       email,
       avatarUrl,
+      favorites,
     },
   });
 };
@@ -232,6 +237,25 @@ const getAllUsers = async (req, res) => {
   res.json({ users: popularAuthor });
 };
 
+// // get favorite
+// const getFavoritesPosts = async (req, res) => {
+//   const { id } = req.params;
+
+//   const user = await User.findById(id);
+//   console.log(user);
+
+//   if (!user) {
+//     throw HttpError(404, `User not found`);
+//   }
+
+//   // Отримуємо об'єкти улюблених постів з усіма даними
+//   const favoritePosts = await Post.find({ _id: { $in: user.favorites } });
+
+//  // console.log(favoritePosts);
+
+//   res.json(favoritePosts);
+// };
+
 module.exports = {
   signUp: ctrlWrapper(signUp),
   verify: ctrlWrapper(verify),
@@ -241,4 +265,5 @@ module.exports = {
   updateUser: ctrlWrapper(updateUser),
   getCurrent: ctrlWrapper(getCurrent),
   getAllUsers: ctrlWrapper(getAllUsers),
+  // getFavoritesPosts: ctrlWrapper(getFavoritesPosts),
 };
