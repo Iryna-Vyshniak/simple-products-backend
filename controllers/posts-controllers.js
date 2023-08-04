@@ -13,14 +13,16 @@ const getAll = async (req, res) => {
   const { page, limit, skip } = pagination(currentPage, currentLimit);
 
   const posts = await Post.find({}, '', { skip, limit })
-    .populate('owner', '_id name email avatarUrl')
+    .populate('owner', '_id name email avatarUrl favorites')
     .sort('-createdAt');
 
   if (!posts) {
     throw HttpError(404, 'Not Found Post');
   }
 
-  const popularPosts = await Post.find({}, '', { skip, limit }).sort('-viewsCount');
+  const popularPosts = await Post.find({}, '', { skip, limit })
+    .sort('-viewsCount')
+    .populate('owner', '_id name email avatarUrl favorites');
   const totalPosts = await Post.countDocuments();
   //  const totalPosts = await Post.find().count();
 
@@ -137,7 +139,7 @@ const updatePost = async (req, res) => {
 // GET ALL USER POSTS
 const getUserPosts = async (req, res) => {
   const { user } = req.params;
-  console.log(user);
+  // // console.log('USER', user);
 
   const postList = await Post.find().populate({
     path: 'owner',
@@ -145,22 +147,25 @@ const getUserPosts = async (req, res) => {
     select: '_id name email avatarUrl',
   });
 
+  // // console.log('POSTLIST', postList.length);
+
   const filteredPosts = postList.filter((post) => post.owner !== null);
 
   if (filteredPosts.length === 0) {
-    throw new HttpError(404, 'Not Found Posts');
+    throw HttpError(404, 'Not Found Posts');
   }
 
   res.json({ posts: filteredPosts });
 };
+
 // const getUserPosts = async (req, res) => {
 //   const { posts } = req.user;
-//   // console.log('POSTS', posts);
+//   // // console.log('POSTS', posts);
 //   // Видаляємо null або невизначені значення
 //   const validPosts = posts.filter((post) => post !== null && post._id);
 
 //   const postIds = await validPosts.map((post) => post._id);
-//   // console.log(postIds);
+//   // // console.log(postIds);
 
 //   // опцією $in, щоб знайти всі пости, які мають ідентифікатор, який знаходиться в postIds. Отриманий результат - postList - містить знайдені пости за цими ідентифікаторами.
 //   const postList = await Post.find({ _id: { $in: postIds } }).populate(
@@ -265,24 +270,46 @@ const setFavoritePost = async (req, res) => {
   const { id } = req.params;
 
   const post = await Post.findById(id);
+  // console.log('POST', post);
 
   if (!post) {
     throw HttpError(404, 'Could not find post for provided id.');
   }
   // В даному випадку краще використовувати $addToSet (not  $push:), оскільки це дозволить додавати унікальні значення до масиву, запобігаючи дублікатам. Якщо користувач вже лайкнув пост або додав його до улюблених, це не призведе до додавання додаткових елементів у масив.
-  const user = await User.findByIdAndUpdate(owner, { $addToSet: { favorites: id } });
+  const user = await User.findByIdAndUpdate({ _id: owner }, { $addToSet: { favorites: id } });
+  await Post.findByIdAndUpdate({ _id: id }, { $addToSet: { likedBy: owner } });
 
   if (!user) {
     throw HttpError(404, `Post not found`);
   }
 
   if (user.favorites.includes(id)) {
-    throw HttpError(422, `Post is already in favorites.`);
+    await User.findByIdAndUpdate({ _id: owner }, { $pull: { favorites: id } });
+    await Post.findByIdAndUpdate({ _id: id }, { $pull: { likedBy: owner } });
   }
 
-  await Post.findByIdAndUpdate(id, { $addToSet: { likedBy: owner } });
+  res.status(201).json({ user });
+};
 
-  res.status(201).json({ message: 'Post added to favorites successfully' });
+// get favorites
+const getFavoritesPosts = async (req, res) => {
+  // console.log('REQUEST USER', req.user);
+  const id = req.user._id;
+  // console.log(id);
+
+  const user = await User.findById(id);
+  // console.log('USER', user);
+
+  if (!user) {
+    throw HttpError(404, 'Not Found User');
+  }
+
+  // Отримуємо об'єкти улюблених постів з усіма даними
+  const favoritePosts = await Post.find({ _id: { $in: user.favorites } });
+
+  // console.log('FAV POSTS', favoritePosts);
+
+  res.json(favoritePosts);
 };
 
 module.exports = {
@@ -295,5 +322,6 @@ module.exports = {
   getPostsByTag: ctrlWrapper(getPostsByTag),
   getSearchPosts: ctrlWrapper(getSearchPosts),
   getAllTags: ctrlWrapper(getAllTags),
+  getFavoritesPosts: ctrlWrapper(getFavoritesPosts),
   setFavoritePost: ctrlWrapper(setFavoritePost),
 };
