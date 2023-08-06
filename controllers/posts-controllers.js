@@ -340,6 +340,27 @@ const addComment = async (req, res) => {
   res.status(201).json({ updatedPost });
 };
 
+// GET COMMENTS
+const getComments = async (req, res) => {
+  const { id } = req.params;
+
+  const post = await Post.findByIdAndUpdate({ _id: id }).populate({
+    path: 'comments',
+    populate: {
+      path: 'owner',
+      select: 'name avatarUrl',
+    },
+  });
+
+  if (!post) {
+    throw HttpError(404, 'Could not find post for provided id.');
+  }
+
+  const comments = post.comments;
+
+  res.json(comments);
+};
+
 module.exports = {
   getAll: ctrlWrapper(getAll),
   createPost: ctrlWrapper(createPost),
@@ -352,5 +373,6 @@ module.exports = {
   getAllTags: ctrlWrapper(getAllTags),
   getFavoritesPosts: ctrlWrapper(getFavoritesPosts),
   setFavoritePost: ctrlWrapper(setFavoritePost),
+  getComments: ctrlWrapper(getComments),
   addComment: ctrlWrapper(addComment),
 };
