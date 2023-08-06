@@ -1,6 +1,23 @@
 const { Schema, model } = require('mongoose');
 const handleMongooseError = require('../helpers/handleMongooseError');
 
+const commentSchema = new Schema(
+  {
+    text: {
+      type: String,
+      required: true,
+    },
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: 'user',
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
+
+commentSchema.post('save', handleMongooseError);
+
 const postSchema = new Schema(
   {
     title: {
@@ -34,7 +51,11 @@ const postSchema = new Schema(
       type: [{ type: Schema.Types.ObjectId, ref: 'user' }],
       default: [],
     },
-    comments: [{ type: Schema.Types.ObjectId, ref: 'user' }],
+    // comments: {
+    //   type: [{ type: String, ref: 'user' }],
+    //   default: [],
+    // },
+    comments: [commentSchema],
   },
   { versionKey: false, timestamps: true }
 );
@@ -42,5 +63,6 @@ const postSchema = new Schema(
 postSchema.post('save', handleMongooseError);
 
 const Post = model('post', postSchema);
+const Comment = model('comment', commentSchema);
 
-module.exports = Post;
+module.exports = { Post, Comment };
