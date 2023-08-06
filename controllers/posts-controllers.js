@@ -1,4 +1,4 @@
-const Post = require('../models/post');
+const { Post, Comment } = require('../models/post');
 const { User } = require('../models/user');
 const ctrlWrapper = require('../decorators/ctrlWrapper');
 const HttpError = require('../helpers/HttpError');
@@ -312,6 +312,34 @@ const getFavoritesPosts = async (req, res) => {
   res.json(favoritePosts);
 };
 
+// ADD COMMENT
+const addComment = async (req, res) => {
+  const owner = req.user._id;
+  const { id } = req.params;
+  const { value } = req.body;
+
+  const post = await Post.findById(id);
+
+  if (!post) {
+    throw HttpError(404, 'Could not find post for provided id.');
+  }
+
+  const newComment = {
+    text: value,
+    owner,
+  };
+
+  const updatedPost = await Post.findByIdAndUpdate(
+    { _id: id },
+    { $push: { comments: newComment } },
+    { new: true }
+  );
+
+  await User.findByIdAndUpdate({ _id: owner }, { $push: { messages: id } });
+
+  res.status(201).json({ updatedPost });
+};
+
 module.exports = {
   getAll: ctrlWrapper(getAll),
   createPost: ctrlWrapper(createPost),
@@ -324,4 +352,5 @@ module.exports = {
   getAllTags: ctrlWrapper(getAllTags),
   getFavoritesPosts: ctrlWrapper(getFavoritesPosts),
   setFavoritePost: ctrlWrapper(setFavoritePost),
+  addComment: ctrlWrapper(addComment),
 };
