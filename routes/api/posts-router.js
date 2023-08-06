@@ -15,6 +15,8 @@ router.get('/search', ctrl.getSearchPosts);
 router.get('/:id', isValidId, ctrl.getOne);
 
 // private
+
+router.post('/:id/comments', checkAuth, ctrl.addComment);
 router.get('/users/:user', checkAuth, ctrl.getUserPosts);
 // router.get('/user/posts', checkAuth, ctrl.getUserPosts);
 router.get('/:id/favorites', checkAuth, ctrl.getFavoritesPosts);
