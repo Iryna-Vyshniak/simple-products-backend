@@ -50,6 +50,7 @@ const userSchema = new Schema(
         ref: 'post',
       },
     ],
+    messages: [{type: Schema.Types.ObjectId, ref: 'post'}]
   },
   { versionKey: false, timestamps: true }
 );
