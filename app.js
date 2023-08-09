@@ -9,6 +9,7 @@ const authRouter = require('./routes/api/auth-router');
 const productsRouter = require('./routes/api/products-router');
 const postsRouter = require('./routes/api/posts-router');
 const reviewsRouter = require('./routes/api/reviews-router');
+const tasksRouter = require('./routes/api/tasks-router');
 
 const formatLogger = app.get('env') === 'development' ? 'dev' : 'short';
 
@@ -23,6 +24,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/products', productsRouter);
 app.use('/api/posts', postsRouter);
 app.use('/api/reviews', reviewsRouter);
+app.use('/api/tasks', tasksRouter);
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Not Found' });
