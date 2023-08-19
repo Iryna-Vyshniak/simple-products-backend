@@ -119,7 +119,7 @@ const signIn = async (req, res, next) => {
     email: candidate.email,
   };
 
-  const token = jwt.sign(payload, SECRET_KEY, { expiresIn: '30d' });
+  const token = jwt.sign(payload, SECRET_KEY, { expiresIn: '60d' });
 
   await User.findByIdAndUpdate(candidate._id, { token });
   //   await User.findOneAndUpdate(email, { token });
